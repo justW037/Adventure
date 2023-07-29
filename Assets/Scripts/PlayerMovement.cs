@@ -22,6 +22,7 @@ public class PlayerMovement : MonoBehaviour
     private BoxCollider2D coll;
     private float Horizontal = 0f;
 
+
     
 
 

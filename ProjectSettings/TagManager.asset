@@ -14,8 +14,8 @@ TagManager:
   - 
   - Water
   - UI
+  - Player
   - Ground
-  - Wood
   - 
   - 
   - 
@@ -47,6 +47,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Chains
+    uniqueID: 2323067379
+    locked: 0
+  - name: Traps
+    uniqueID: 1786566901
+    locked: 0
   - name: Terrain
     uniqueID: 3081523355
+    locked: 0
+  - name: Player
+    uniqueID: 4284504749
     locked: 0

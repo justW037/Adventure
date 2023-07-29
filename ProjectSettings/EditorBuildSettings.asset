@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Prefabs/level1.unity
     guid: 29eb2583479be9343a962800d857ab33
   - enabled: 1
-    path: Assets/Scenes/level2.unity
+    path: Assets/Prefabs/level2.unity
     guid: e191882b697e15b4c8de2a0381dff60c
+  - enabled: 1
+    path: Assets/Scenes/level3.unity
+    guid: 49ce865c283b3e241a0a1b3456864d0f
   m_configObjects: {}
