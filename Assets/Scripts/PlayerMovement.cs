@@ -1,10 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed;
+    
     //jump
     [SerializeField] private float jumpForce;
     [SerializeField] private LayerMask groundLayer;
@@ -15,16 +13,16 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float wallSlideSpeed;
     [SerializeField] private Transform wallCheck;
 
-
+    [SerializeField] private float moveSpeed;
     private Rigidbody2D rb;
     private Animator anim;
     private SpriteRenderer sprite;
     private BoxCollider2D coll;
     private float Horizontal = 0f;
+    private bool isOnMovingPlatform = false;
 
-
-    
-
+    //sound
+    [SerializeField] private AudioSource jumpSound;
 
     private enum MovementState {idle, run, jump, fail }
     
@@ -38,27 +36,31 @@ public class PlayerMovement : MonoBehaviour
     private void Update()
     {
         Horizontal = Input.GetAxisRaw("Horizontal");
-        rb.velocity = new Vector2(Horizontal * moveSpeed, rb.velocity.y);
-
-        if (IsGrounded())
+        rb.velocity = new Vector2(Horizontal * moveSpeed, rb.velocity.y);    
+        if (IsGrounded() || isOnMovingPlatform)
         {
             canDoubleJump = true;
+            
         }
 
         if (Input.GetButtonDown("Jump"))
         {
-            if (IsGrounded())
+           
+            if (IsGrounded() || isOnMovingPlatform)
             {
+                jumpSound.Play();
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 canDoubleJump = true; // Reset double jump ability when grounded
             }
             else if (canDoubleJump) // Perform double jump
             {
+                jumpSound.Play();
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 canDoubleJump = false;
             }
             else if (isWallSliding) // Perform wall jump
             {
+                jumpSound.Play();
                 float wallJumpDirection = IsWalled() ? -Mathf.Sign(Horizontal) : 0f;
                 rb.velocity = new Vector2(wallJumpDirection * jumpForce, jumpForce);
                 isWallSliding = false; // Exit wall slide after wall jump
@@ -75,11 +77,13 @@ public class PlayerMovement : MonoBehaviour
         {
             state = MovementState.run;
             sprite.flipX = false;
+            
         }
         else if(Horizontal < 0f)
         {
             state = MovementState.run;
             sprite.flipX = true;
+            
         }
         else
         {
@@ -115,6 +119,25 @@ public class PlayerMovement : MonoBehaviour
         else 
         { 
             isWallSliding = false;
+        }
+    }
+
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+       
+        if (collision.gameObject.CompareTag("MovingPlatform"))
+        {
+            isOnMovingPlatform = true;
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision)
+    {
+        
+        if (collision.gameObject.CompareTag("MovingPlatform"))
+        {
+            isOnMovingPlatform = false;
         }
     }
 }

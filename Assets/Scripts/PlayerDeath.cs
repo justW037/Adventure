@@ -7,6 +7,7 @@ public class NewBehaviourScript : MonoBehaviour
 {
     private Rigidbody2D rb;
     private Animator anim;
+    [SerializeField] AudioSource deathSound;
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -16,6 +17,7 @@ public class NewBehaviourScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Traps"))
         {
+            deathSound.Play();
             Die();
         }
     }

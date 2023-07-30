@@ -6,12 +6,13 @@ public class checkPoints : MonoBehaviour
 {
     [SerializeField] private float delayTime;
     [SerializeField] private string nameScene;
+    [SerializeField] private AudioSource checkpointSound;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.tag == "Player")
         {
-            Debug.LogWarning("abcaska");
+            checkpointSound.Play();
             ModeSelect();
         }
     }
