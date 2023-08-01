@@ -8,10 +8,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     private bool canDoubleJump = false;
 
-    //wall
-    private bool isWallSliding;
-    [SerializeField] private float wallSlideSpeed;
-    [SerializeField] private Transform wallCheck;
 
     [SerializeField] private float moveSpeed;
     private Rigidbody2D rb;
@@ -21,10 +17,17 @@ public class PlayerMovement : MonoBehaviour
     private float Horizontal = 0f;
     private bool isOnMovingPlatform = false;
 
+
+
+    //wall
+    private bool isWallSliding;
+    [SerializeField] private float wallSlideSpeed;
+
+
     //sound
     [SerializeField] private AudioSource jumpSound;
 
-    private enum MovementState {idle, run, jump, fail }
+    private enum MovementState {idle, run, jump, fail, wallSlide}
     
     private void Awake()
     {
@@ -40,12 +43,26 @@ public class PlayerMovement : MonoBehaviour
         if (IsGrounded() || isOnMovingPlatform)
         {
             canDoubleJump = true;
-            
+            isWallSliding = false;
         }
+        if (IsWalled() && !IsGrounded())
+        {
+            isWallSliding = true;
+            rb.velocity = new Vector2(rb.velocity.x, -wallSlideSpeed);
+        }
+       
 
+        Jump();
+
+        UpdateAnimations();
+    }
+
+
+    private void Jump()
+    {
         if (Input.GetButtonDown("Jump"))
         {
-           
+
             if (IsGrounded() || isOnMovingPlatform)
             {
                 jumpSound.Play();
@@ -58,18 +75,11 @@ public class PlayerMovement : MonoBehaviour
                 rb.velocity = new Vector2(rb.velocity.x, jumpForce);
                 canDoubleJump = false;
             }
-            else if (isWallSliding) // Perform wall jump
-            {
-                jumpSound.Play();
-                float wallJumpDirection = IsWalled() ? -Mathf.Sign(Horizontal) : 0f;
-                rb.velocity = new Vector2(wallJumpDirection * jumpForce, jumpForce);
-                isWallSliding = false; // Exit wall slide after wall jump
-            }
-        }
 
-        UpdateAnimations();
-        WallSlide();
+        }
     }
+
+
     private void UpdateAnimations()
     {
         MovementState state;
@@ -97,6 +107,10 @@ public class PlayerMovement : MonoBehaviour
         {
             state = MovementState.fail;
         }
+        else if (IsWalled() && !IsGrounded() && rb.velocity.y < -0f)
+        {
+            state = MovementState.wallSlide;
+        }
         anim.SetInteger("state", (int)state);
     }
     private bool IsGrounded()
@@ -106,22 +120,10 @@ public class PlayerMovement : MonoBehaviour
 
     private bool IsWalled()
     {
-        return Physics2D.OverlapCircle(wallCheck.position, 0.2f, groundLayer);
+        bool isWalledRight = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.right, 0.1f, groundLayer);
+        bool isWalledLeft = Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.left, 0.1f, groundLayer);
+        return isWalledRight || isWalledLeft;
     }
-
-    private void WallSlide()
-    {
-        if(IsWalled() && !IsGrounded() && Horizontal !=0f ) 
-        { 
-            isWallSliding = true;
-            rb.velocity = new Vector2(rb.velocity.x, Mathf.Clamp(rb.velocity.y, -wallSlideSpeed, float.MaxValue));
-        }
-        else 
-        { 
-            isWallSliding = false;
-        }
-    }
-
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -140,4 +142,6 @@ public class PlayerMovement : MonoBehaviour
             isOnMovingPlatform = false;
         }
     }
+
+
 }
